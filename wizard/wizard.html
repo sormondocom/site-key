@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Humbleman Site Key Manager — Setup</title>
+  <link rel="stylesheet" href="wizard.css">
+</head>
+<body>
+<div class="wizard-wrap">
+  <div class="wizard-card">
+
+    <!-- ── Step 1: Welcome ── -->
+    <div id="step-1" class="step">
+      <img src="../mascot.svg" alt="Humbleman Site Key Manager" class="mascot-logo">
+      <h1>Welcome to Humbleman Site Key Manager</h1>
+      <p class="lead">A PGP-encrypted credential vault that lives entirely on your device. Only holders of an authorized key can unlock it.</p>
+      <div class="choice-grid">
+        <button class="choice-btn" id="btn-create">
+          <span class="choice-icon">✨</span>
+          <strong>Create New Identity</strong>
+          <small>Generate a fresh PGP key pair</small>
+        </button>
+        <button class="choice-btn" id="btn-import">
+          <span class="choice-icon">📥</span>
+          <strong>Import Existing Key</strong>
+          <small>Use a key you already have</small>
+        </button>
+      </div>
+      <div class="key-callout key-callout--tip">
+        💡 <strong>Did you know?</strong> Humbleman uses PGP <em>key pairs</em>. Your <strong>private key</strong> is your secret identity — only you hold it, and it's the one thing that unlocks your vault. Your <strong>public key</strong> encrypts the vault so that only your matching private key can open it. A <strong>passphrase</strong> adds a second layer of protection on the private key at rest. Together, these three things are what keep your credentials secure.
+      </div>
+    </div>
+
+    <!-- ── Step 2a: Create key ── -->
+    <div id="step-2a" class="step hidden">
+      <div class="step-back"><button class="back-btn" data-target="step-1">← Back</button></div>
+      <h2>Create Your Identity</h2>
+      <p class="sub">This generates a new PGP key pair tied to your name. The <strong>private key</strong> produced here is the only thing that can unlock your credential database — you will paste it in or load it from a file every time the vault locks. Treat it like a physical key to your home.</p>
+      <form id="form-create" class="wiz-form">
+        <div class="field">
+          <label>Display Name <span class="req">*</span></label>
+          <input type="text" id="key-name" placeholder="e.g. Your Name" required>
+        </div>
+        <div class="field">
+          <label>Email <span class="opt">(optional)</span></label>
+          <input type="email" id="key-email" placeholder="youremail@example.com">
+        </div>
+        <div class="field">
+          <label>Key Passphrase <span class="req">*</span></label>
+          <input type="password" id="key-pass" placeholder="Strong passphrase" required minlength="8">
+          <div class="pw-hint">Min 8 characters. Required alongside your private key every time you unlock.</div>
+        </div>
+        <div class="field">
+          <label>Confirm Passphrase <span class="req">*</span></label>
+          <input type="password" id="key-pass2" placeholder="Confirm passphrase" required>
+        </div>
+        <div class="key-callout">
+          🔐 <strong>How unlocking works:</strong> Each time your vault locks, you'll open it by pasting your private key and entering this passphrase. If you lose the private key, your credentials cannot be recovered — there is no reset or account recovery. Your private and public keys will be displayed on the next screen — save them to a <strong>known, safe location</strong> outside this device before continuing.
+        </div>
+        <div id="create-err" class="error-msg hidden"></div>
+        <button type="submit" class="btn-primary btn-wide" id="btn-generate">
+          Generate Key Pair
+        </button>
+      </form>
+    </div>
+
+    <!-- ── Step 2b: Import key ── -->
+    <div id="step-2b" class="step hidden">
+      <div class="step-back"><button class="back-btn" data-target="step-1">← Back</button></div>
+      <h2>Import Existing Key</h2>
+      <p class="sub">Paste your armored PGP private key below. This key will unlock your credential database every time it locks — keep a backup of it in a safe place outside this device.</p>
+      <form id="form-import" class="wiz-form">
+        <div class="field">
+          <div class="label-row">
+            <label>PGP Private Key</label>
+            <button type="button" id="btn-load-import-key" class="btn-link">📂 Load from file</button>
+          </div>
+          <input type="file" id="file-import-key" accept=".asc,text/plain" class="hidden">
+          <textarea id="import-key" rows="7"
+            placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----&#10;&#10;...&#10;-----END PGP PRIVATE KEY BLOCK-----"></textarea>
+        </div>
+        <div class="field">
+          <label>Passphrase</label>
+          <input type="password" id="import-pass" placeholder="Key passphrase (leave blank if none)">
+        </div>
+        <div class="key-callout">
+          🔐 <strong>How unlocking works:</strong> Each time your vault locks, you'll open it by pasting this private key and entering its passphrase. Make sure your key is backed up in a <strong>known, safe location</strong> outside this device — if you lose it, your credentials cannot be recovered and there is no reset.
+        </div>
+        <div id="import-err" class="error-msg hidden"></div>
+        <button type="submit" class="btn-primary btn-wide" id="btn-import-submit">
+          Verify &amp; Import
+        </button>
+      </form>
+    </div>
+
+    <!-- ── Step 3: Key ready ── -->
+    <div id="step-3" class="step hidden">
+      <div class="step-icon">✅</div>
+      <h2>Key Ready</h2>
+      <div id="key-summary" class="key-summary"></div>
+
+      <div id="privkey-backup" class="key-box key-box--warn hidden">
+        <p class="key-box-label">⚠️ <strong>Your Private Key — save this now.</strong> This is the only way to unlock your credential database when it locks. Each time the vault locks, you will paste it in or load it from the saved <code>.asc</code> file you download below. It cannot be recovered or reset if lost — download or copy it to a <strong>known, safe location outside this device</strong> (a password manager, USB drive, or printed paper backup) before continuing.</p>
+        <textarea id="privkey-display" rows="5" readonly></textarea>
+        <div class="key-box-actions">
+          <button class="btn-secondary" id="btn-copy-privkey">Copy</button>
+          <button class="btn-secondary" id="btn-download-privkey">Download .asc</button>
+        </div>
+      </div>
+
+      <div id="pubkey-share" class="key-box key-box--info hidden">
+        <p class="key-box-label">📤 <strong>Your Public Key — share this with others.</strong> When someone wants to give you access to their vault or share credentials with you via a vault or item export, they will need your public key to authorize you. Give this to anyone who should be able to share with you — it contains no secrets.</p>
+        <textarea id="pubkey-display" rows="5" readonly></textarea>
+        <div class="key-box-actions">
+          <button class="btn-secondary" id="btn-copy-pubkey">Copy</button>
+          <button class="btn-secondary" id="btn-download-pubkey">Download .asc</button>
+        </div>
+      </div>
+
+      <label id="backup-ack" class="ack-row hidden">
+        <input type="checkbox" id="ack-saved">
+        <span>I have saved a copy of my private key in a safe location outside this browser. I understand it cannot be recovered if lost.</span>
+      </label>
+
+      <button class="btn-primary btn-wide mt" id="btn-to-step4" disabled>Continue →</button>
+    </div>
+
+    <!-- ── Step 4: Additional keys ── -->
+    <div id="step-4" class="step hidden">
+      <h2>Authorize Additional Identities</h2>
+      <p class="sub">Other devices or identities can share this vault. Paste their <strong>public</strong> key below — they keep their private key; you're just granting access.</p>
+      <form id="form-addkey" class="wiz-form">
+        <div class="field">
+          <div class="label-row">
+            <label>Public Key (armored)</label>
+            <button type="button" id="btn-load-extra-pubkey" class="btn-link">📂 Load from file</button>
+          </div>
+          <input type="file" id="file-extra-pubkey" accept=".asc,text/plain" class="hidden">
+          <textarea id="extra-pubkey" rows="5"
+            placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----"></textarea>
+        </div>
+        <div class="field">
+          <label>Label <span class="opt">(optional)</span></label>
+          <input type="text" id="extra-label" placeholder="e.g. Work Laptop">
+        </div>
+        <div id="addkey-err" class="error-msg hidden"></div>
+        <button type="submit" class="btn-secondary btn-wide">Add This Key</button>
+      </form>
+      <div id="extra-key-list" class="key-list"></div>
+      <button class="btn-primary btn-wide mt" id="btn-finish">Finish Setup →</button>
+    </div>
+
+    <!-- ── Vault already exists ── -->
+    <div id="step-exists" class="step hidden">
+      <div class="step-icon">🔒</div>
+      <h2>Vault Already Set Up</h2>
+      <p class="sub">A credential vault already exists in this browser profile. Running the setup wizard again would overwrite it and permanently delete all stored credentials.</p>
+      <p class="sub">To add or remove authorized keys, export your vault, or change settings — open <strong>Settings</strong> instead. To start completely over, use <strong>Reset Vault</strong> in the Danger Zone section of Settings.</p>
+      <button class="btn-primary btn-wide mt" id="btn-go-settings">Open Settings</button>
+    </div>
+
+    <!-- ── Step 5: Done ── -->
+    <div id="step-5" class="step hidden">
+      <div class="step-icon">🎉</div>
+      <h2>Vault Ready!</h2>
+      <p class="lead">Your encrypted vault has been created. Click the Humbleman Site Key Manager icon in your toolbar to start adding credentials.</p>
+      <button class="btn-primary btn-wide mt" id="btn-done">Close This Tab</button>
+    </div>
+
+    <div class="wiz-footer">
+      <button id="bmac-link" class="wiz-footer-link">☕ Buy me a coffee</button>
+    </div>
+
+  </div>
+</div>
+<script type="module" src="wizard.js"></script>
+</body>
+</html>

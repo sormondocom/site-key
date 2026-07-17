@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Humbleman Site Key Manager</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body class="popup-mode">
+
+  <!-- Loading -->
+  <div id="v-loading" class="view">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Not initialized -->
+  <div id="v-setup" class="view hidden">
+    <div class="setup-center">
+      <img src="../mascot.svg" alt="Humbleman Site Key Manager" class="brand-logo">
+      <h1>Humbleman Site Key Manager</h1>
+      <p>Your PGP-encrypted credential vault</p>
+      <button id="btn-open-wizard" class="btn-primary btn-wide">Set Up Vault</button>
+    </div>
+  </div>
+
+  <!-- Locked -->
+  <div id="v-locked" class="view hidden">
+    <div class="lock-header">
+      <span class="lock-icon">🔒</span>
+      <h2>Vault Locked</h2>
+      <p class="muted">Paste your PGP private key to unlock</p>
+    </div>
+    <form id="form-unlock" class="lock-form">
+      <div class="field">
+        <div class="label-row">
+          <label for="unlock-key">Private Key</label>
+          <button type="button" id="btn-load-key" class="btn-load">📂 Load from file</button>
+        </div>
+        <input type="file" id="file-key-input" accept=".asc,text/plain" class="hidden">
+        <textarea id="unlock-key" rows="5"
+          placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----"></textarea>
+      </div>
+      <div class="field">
+        <label>Passphrase</label>
+        <input type="password" id="unlock-pass" placeholder="Key passphrase">
+      </div>
+      <div id="unlock-err" class="error-msg hidden"></div>
+      <button type="submit" class="btn-primary btn-wide" id="btn-unlock">Unlock</button>
+    </form>
+  </div>
+
+  <!-- Vault -->
+  <div id="v-vault" class="view hidden">
+    <div class="toolbar">
+      <span class="app-name"><img src="../mascot.svg" alt="" class="toolbar-logo">Humbleman Site Key Manager</span>
+      <div class="toolbar-right">
+        <button id="btn-add-cred"     class="icon-btn" title="Add Credential">＋</button>
+        <button id="btn-add-folder"   class="icon-btn" title="New Folder">📁</button>
+        <button id="btn-open-options" class="icon-btn" title="Settings">⚙</button>
+        <button id="btn-lock"         class="icon-btn" title="Lock">🔒</button>
+      </div>
+    </div>
+    <div class="vault-body">
+      <input type="text" id="search" class="search-input" placeholder="Search credentials…">
+      <div id="vault-tree"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Add/Edit Credential -->
+  <div id="modal-cred" class="modal hidden">
+    <div class="modal-backdrop" id="modal-cred-backdrop"></div>
+    <div class="modal-box">
+      <div class="modal-head">
+        <span id="modal-cred-title">Add Credential</span>
+        <button class="icon-btn modal-close-cred">✕</button>
+      </div>
+      <form id="form-cred" class="modal-form">
+        <div class="field">
+          <label>Name <span class="req">*</span></label>
+          <input type="text" id="c-name" placeholder="e.g. GitHub Personal" required>
+        </div>
+        <div class="field">
+          <label>URLs <span class="hint">(one per line)</span></label>
+          <textarea id="c-urls" rows="2" placeholder="github.com&#10;gist.github.com"></textarea>
+        </div>
+        <div class="field">
+          <label>Username</label>
+          <input type="text" id="c-user" placeholder="Username or email" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div class="pw-row">
+            <input type="password" id="c-pass" placeholder="Password" autocomplete="new-password">
+            <button type="button" id="btn-reveal" class="icon-btn-sm" title="Show">👁</button>
+            <button type="button" id="btn-gen"    class="icon-btn-sm" title="Generate">🎲</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Folder</label>
+          <select id="c-folder"></select>
+        </div>
+        <div class="field">
+          <label>Notes</label>
+          <textarea id="c-notes" rows="2" placeholder="Optional"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary modal-close-cred">Cancel</button>
+          <button type="submit" class="btn-primary" id="btn-save-cred">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add Folder -->
+  <div id="modal-folder" class="modal hidden">
+    <div class="modal-backdrop" id="modal-folder-backdrop"></div>
+    <div class="modal-box modal-box-sm">
+      <div class="modal-head">
+        <span id="modal-folder-title">New Folder</span>
+        <button class="icon-btn modal-close-folder">✕</button>
+      </div>
+      <form id="form-folder" class="modal-form">
+        <div class="field">
+          <label>Folder Name <span class="req">*</span></label>
+          <input type="text" id="f-name" placeholder="e.g. Work" required>
+        </div>
+        <div class="field">
+          <label>Parent Folder</label>
+          <select id="f-parent"></select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary modal-close-folder">Cancel</button>
+          <button type="submit" class="btn-primary">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

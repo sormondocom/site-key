@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 240">
+  <!--
+    Humbleman Site Key Manager — Mascot
+    The key ring doubles as the right lens of the glasses,
+    with the shaft and teeth hanging below.
+  -->
+  <defs>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="145%">
+      <feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="rgba(0,0,0,0.18)"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+
+    <!-- ══════════════════════════════════════
+         GLASSES FRAME
+    ══════════════════════════════════════ -->
+
+    <!-- Left lens (blue-tinted glass) -->
+    <circle cx="100" cy="90" r="44"
+            fill="rgba(210,235,255,0.50)" stroke="#2C3E50" stroke-width="6"/>
+
+    <!-- Left lens eyeball -->
+    <circle cx="100" cy="84" r="13" fill="#1A237E"/>
+    <circle cx="100" cy="84" r="7"  fill="#0D1B4A"/>
+    <circle cx="104" cy="79" r="4"  fill="rgba(255,255,255,0.75)"/>
+
+    <!-- Left lens glare -->
+    <ellipse cx="86" cy="70" rx="11" ry="7"
+             fill="rgba(255,255,255,0.60)"
+             transform="rotate(-30 86 70)"/>
+
+    <!-- Right lens — this IS the key ring -->
+    <circle cx="204" cy="90" r="44"
+            fill="#FFCA28" stroke="#2C3E50" stroke-width="6"/>
+
+    <!-- Key ring warm inner glow -->
+    <circle cx="204" cy="90" r="36" fill="#FFD740" opacity="0.4"/>
+
+    <!-- Key ring glare -->
+    <ellipse cx="188" cy="70" rx="11" ry="7"
+             fill="rgba(255,255,255,0.50)"
+             transform="rotate(-30 188 70)"/>
+
+    <!-- Nose bridge (arches slightly upward, natural curve) -->
+    <path d="M144 90 Q152 82 160 90"
+          fill="none" stroke="#2C3E50" stroke-width="5" stroke-linecap="round"/>
+
+    <!-- Left temple arm -->
+    <line x1="56"  y1="90" x2="10"  y2="74"
+          stroke="#2C3E50" stroke-width="5" stroke-linecap="round"/>
+
+    <!-- Right temple arm -->
+    <line x1="248" y1="90" x2="290" y2="74"
+          stroke="#2C3E50" stroke-width="5" stroke-linecap="round"/>
+
+
+    <!-- ══════════════════════════════════════
+         KEY  (right lens = bow ring)
+    ══════════════════════════════════════ -->
+
+    <!-- Keyhole: classic circle-over-slot shape -->
+    <circle cx="204" cy="84" r="13" fill="#1A237E"/>
+    <path d="M197 95 L197 114 Q197 117 200 117 L208 117 Q211 117 211 114 L211 95 Z"
+          fill="#1A237E"/>
+
+    <!-- Keyhole inner highlight (depth) -->
+    <circle cx="204" cy="84" r="7" fill="#0D1B4A"/>
+
+    <!-- Key shaft emerging from bottom of ring -->
+    <rect x="199" y="131" width="10" height="72" rx="4"
+          fill="#FFCA28" stroke="#E65100" stroke-width="2.5"/>
+
+    <!-- Shaft highlight stripe -->
+    <rect x="201" y="135" width="3" height="63" rx="2"
+          fill="rgba(255,255,255,0.32)"/>
+
+    <!-- Teeth — three, graduating in length -->
+    <rect x="209" y="150" width="17" height="10" rx="3"
+          fill="#FFCA28" stroke="#E65100" stroke-width="2.5"/>
+    <rect x="209" y="169" width="13" height="10" rx="3"
+          fill="#FFCA28" stroke="#E65100" stroke-width="2.5"/>
+    <rect x="209" y="188" width="9"  height="10" rx="3"
+          fill="#FFCA28" stroke="#E65100" stroke-width="2.5"/>
+
+  </g>
+</svg>

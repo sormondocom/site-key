@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Humbleman Site Key Manager — Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+<div class="page">
+  <header class="page-header">
+    <div class="page-title"><img src="../mascot.svg" alt="" class="header-logo">Humbleman Site Key Manager <span>Settings</span></div>
+    <div id="lock-status" class="lock-badge hidden"></div>
+  </header>
+
+  <div id="content">
+
+    <!-- ── Unlock prompt (shown when locked) ── -->
+    <div id="unlock-panel" class="panel hidden">
+      <div class="panel-title">🔒 Vault Locked</div>
+      <p class="muted">Unlock the vault to manage keys and export settings.</p>
+      <form id="form-unlock" class="inline-form">
+        <div class="field">
+          <div class="label-row">
+            <label>Private Key</label>
+            <button type="button" id="btn-load-unlock-key" class="btn-link">📂 Load from file</button>
+          </div>
+          <input type="file" id="file-unlock-key" accept=".asc,text/plain" class="hidden">
+          <textarea id="u-key" rows="5" placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----"></textarea>
+        </div>
+        <div class="field">
+          <label>Passphrase</label>
+          <input type="password" id="u-pass" placeholder="Key passphrase">
+        </div>
+        <div id="u-err" class="error-msg hidden"></div>
+        <button type="submit" class="btn-primary">Unlock Vault</button>
+      </form>
+    </div>
+
+    <!-- ── Authorized Keys ── -->
+    <div id="keys-panel" class="panel hidden">
+      <div class="panel-title">Authorized Keys</div>
+      <p class="muted">Each key listed here can independently unlock this vault. Add another identity's <strong>public key</strong> to share access.</p>
+      <div id="key-list" class="key-list"></div>
+
+      <details class="expandable">
+        <summary>Add a Key</summary>
+        <form id="form-add-key" class="inline-form">
+          <div class="field">
+            <div class="label-row">
+              <label>Public Key (armored)</label>
+              <button type="button" id="btn-load-pubkey" class="btn-link">📂 Load from file</button>
+            </div>
+            <input type="file" id="file-pubkey-input" accept=".asc,text/plain" class="hidden">
+            <textarea id="ak-key" rows="6" placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----"></textarea>
+          </div>
+          <div class="field">
+            <label>Label <span class="opt">(optional)</span></label>
+            <input type="text" id="ak-label" placeholder="e.g. Work Laptop">
+          </div>
+          <div id="ak-err" class="error-msg hidden"></div>
+          <button type="submit" class="btn-primary">Add Key</button>
+        </form>
+      </details>
+    </div>
+
+    <!-- ── Session ── -->
+    <div id="session-panel" class="panel hidden">
+      <div class="panel-title">Session</div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-name">Auto-lock after</div>
+          <div class="setting-desc muted">Vault locks automatically when idle</div>
+        </div>
+        <select id="auto-lock-select">
+          <option value="5">5 minutes</option>
+          <option value="15" selected>15 minutes</option>
+          <option value="30">30 minutes</option>
+          <option value="60">1 hour</option>
+          <option value="0">Never</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-name">Dismiss notification for</div>
+          <div class="setting-desc muted">How long "Dismiss" suppresses the credential match notification for a site on that tab</div>
+        </div>
+        <select id="dismiss-select">
+          <option value="0">Until tab closes</option>
+          <option value="30">30 minutes</option>
+          <option value="60">1 hour</option>
+          <option value="240">4 hours</option>
+          <option value="1440">24 hours</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ── Vault Location ── -->
+    <div id="vault-location-panel" class="panel hidden">
+      <div class="panel-title">Vault Location</div>
+      <p class="muted">By default the vault is stored in your browser's private local storage, tied to this browser profile. Link it to a file on disk — such as a folder synced by Dropbox or iCloud Drive — to keep a portable copy you control and can share across sessions or devices.</p>
+
+      <div id="vl-unsupported" class="warn-box hidden" style="margin-top:12px">
+        ⚠️ External file sync requires a browser that supports the File System Access API (Chrome, Edge, or another Chromium-based browser).
+      </div>
+
+      <div id="vl-controls">
+        <div id="vl-unlinked" class="action-row">
+          <div class="action-info">
+            <div class="action-name">Browser storage only</div>
+            <div class="muted">No external file linked</div>
+          </div>
+          <div class="btn-group">
+            <button class="btn-secondary" id="btn-vl-new">New file…</button>
+            <button class="btn-secondary" id="btn-vl-existing">Existing file…</button>
+          </div>
+        </div>
+        <div id="vl-linked" class="action-row hidden">
+          <div class="action-info">
+            <div class="action-name" id="vl-filename"></div>
+            <div class="muted" id="vl-status"></div>
+          </div>
+          <button class="btn-secondary" id="btn-vl-unlink">Unlink</button>
+        </div>
+        <div id="vl-reauth" class="hidden" style="margin-top:8px">
+          <div class="warn-box">
+            ⚠️ File access needs re-authorization to continue syncing.
+            <button type="button" class="btn-link" id="btn-vl-reauth" style="margin-left:8px">Re-authorize</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Backup & Transfer ── -->
+    <div id="backup-panel" class="panel hidden">
+      <div class="panel-title">Backup &amp; Transfer</div>
+      <p class="muted">The exported file is fully encrypted — it cannot be read without an authorized key. Safe to copy between devices.</p>
+
+      <div class="action-row">
+        <div class="action-info">
+          <div class="action-name">Export Vault</div>
+          <div class="muted">Download your encrypted vault as a <code>.sitekey-vault</code> file</div>
+        </div>
+        <button class="btn-secondary" id="btn-export">Export</button>
+      </div>
+
+      <div class="action-row">
+        <div class="action-info">
+          <div class="action-name">Import Vault</div>
+          <div class="muted">Replace the current vault with an exported file (you must hold an authorized key)</div>
+        </div>
+        <button class="btn-secondary" id="btn-import-show">Import…</button>
+      </div>
+
+      <div id="import-section" class="hidden">
+        <form id="form-import" class="inline-form">
+          <div class="field">
+            <label>Vault File (.sitekey-vault)</label>
+            <input type="file" id="import-file" accept=".sitekey-vault,.json">
+          </div>
+          <div class="field">
+            <div class="label-row">
+              <label>Your Private Key</label>
+              <button type="button" id="btn-load-imp-key" class="btn-link">📂 Load from file</button>
+            </div>
+            <input type="file" id="file-imp-key" accept=".asc,text/plain" class="hidden">
+            <textarea id="imp-key" rows="5" placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----"></textarea>
+          </div>
+          <div class="field">
+            <label>Passphrase</label>
+            <input type="password" id="imp-pass" placeholder="Key passphrase">
+          </div>
+          <div id="imp-err" class="error-msg hidden"></div>
+          <div class="warn-box">⚠️ This will replace your current vault. Make sure you have a backup.</div>
+          <button type="submit" class="btn-primary">Import &amp; Unlock</button>
+        </form>
+      </div>
+
+      <div class="action-row">
+        <div class="action-info">
+          <div class="action-name">Export Site(s)</div>
+          <div class="muted">Export selected credentials as a portable encrypted <code>.sitekey-share</code> file</div>
+        </div>
+        <button class="btn-secondary" id="btn-export-select-show">Select…</button>
+      </div>
+
+      <div id="export-select-section" class="sub-section hidden">
+        <div class="cred-check-header">
+          <span id="sel-count">0 selected</span>
+          <button type="button" class="btn-link" id="btn-sel-all">Select all</button>
+          <button type="button" class="btn-link" id="btn-sel-none">None</button>
+        </div>
+        <div id="cred-check-list" class="cred-check-list"></div>
+        <div id="export-sel-err" class="error-msg hidden"></div>
+        <button type="button" class="btn-primary" id="btn-export-selected" disabled>Export</button>
+      </div>
+
+      <div class="action-row">
+        <div class="action-info">
+          <div class="action-name">Import Site(s)</div>
+          <div class="muted">Import credentials from a site export file without replacing your vault</div>
+        </div>
+        <button class="btn-secondary" id="btn-merge-show">Import…</button>
+      </div>
+
+      <div id="merge-section" class="sub-section hidden">
+        <div class="info-box">
+          <strong>This will not replace your vault.</strong> A site export contains only a selected subset of credentials — individual sites or groups — that someone chose to share with you. Your existing vault and all its credentials remain untouched. You choose which items from the export to bring in.
+        </div>
+        <form id="form-merge-decrypt" class="inline-form">
+          <div class="field">
+            <label>Site Export File (.sitekey-share)</label>
+            <input type="file" id="merge-file" accept=".sitekey-share,.json">
+          </div>
+          <div class="field">
+            <div class="label-row">
+              <label>Your Private Key</label>
+              <button type="button" id="btn-load-merge-key" class="btn-link">📂 Load from file</button>
+            </div>
+            <input type="file" id="file-merge-key" accept=".asc,text/plain" class="hidden">
+            <textarea id="merge-key" rows="5" placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----"></textarea>
+          </div>
+          <div class="field">
+            <label>Passphrase</label>
+            <input type="password" id="merge-pass" placeholder="Key passphrase">
+          </div>
+          <div id="merge-err" class="error-msg hidden"></div>
+          <button type="submit" class="btn-primary">Decrypt &amp; Preview</button>
+        </form>
+      </div>
+
+      <div id="merge-preview" class="sub-section hidden">
+        <div class="merge-preview-header">
+          <strong>Incoming Credentials</strong>
+          <span class="muted">Checked items will be imported into your vault. Conflicts will overwrite existing entries.</span>
+        </div>
+        <div id="merge-preview-list" class="merge-preview-list"></div>
+        <div id="merge-confirm-err" class="error-msg hidden"></div>
+        <div class="merge-actions">
+          <button type="button" class="btn-primary" id="btn-confirm-merge">Import into Vault</button>
+          <button type="button" class="btn-secondary" id="btn-cancel-merge">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Danger Zone ── -->
+    <div id="danger-zone" class="panel danger-zone hidden">
+      <div class="panel-title danger-title">Danger Zone</div>
+      <div class="action-row">
+        <div class="action-info">
+          <div class="action-name">Reset Vault</div>
+          <div class="muted">Permanently deletes all credentials and keys. Cannot be undone.</div>
+        </div>
+        <button class="btn-danger" id="btn-reset">Reset</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script type="module" src="options.js"></script>
+</body>
+</html>

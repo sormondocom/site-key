@@ -1,0 +1,16 @@
+{
+  "name": "humbleman-site-key",
+  "version": "1.0.0",
+  "description": "PGP-encrypted credential vault browser extension",
+  "private": true,
+  "scripts": {
+    "setup": "node scripts/setup.js"
+  },
+  "dependencies": {
+    "openpgp": "^6.0.0"
+  },
+  "devDependencies": {
+    "pngjs": "^7.0.0",
+    "sharp": "^0.33.0"
+  }
+}
